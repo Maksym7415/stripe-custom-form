@@ -268,3 +268,11 @@ p {
   right: 20px;
   top: 28px;
 }
+
+.card-error-message {
+  font-size: 14px;
+  color: red;
+  bottom: -10px;
+  left: 10px;
+  position: absolute;
+}

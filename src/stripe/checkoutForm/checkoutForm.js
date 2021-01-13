@@ -38,27 +38,43 @@ function CheckoutForm({ clientSecret, amount }) {
   const [lang] = useState('en');
 
   const [billingDetails, setBillingDetails] = useState({ ...defaultState });
-  const [checkCard, setCheckCard] = useState(false);
   const [cardComplete, setCardComplete] = useState({
-    cardNumber: true,
-    cardExpiry: true,
-    cardCvc: true,
+    cardNumber: {},
+    cardExpiry: {},
+    cardCvc: {},
   });
-  const [err, setErr] = useState({
-    cardNumber: true,
-    cardExpiry: true,
-    cardCvc: true,
+  const [cardFieldsValidation, setCardFieldsValidation] = useState({
+    cardNumber: {
+      state: true,
+      message: ''
+    },
+    cardExpiry: {
+      state: true,
+      message: ''
+    },
+    cardCvc: {
+      state: true,
+      message: ''
+    },
+  });
+  const [cardFieldErrorMessage, setCardFieldErrorMessage] = useState('');
+  const [innerFieldsValidation, setInnerFieldsValidation] = useState({
     country: true,
     email: true,
     name: true,
   });
+
   const [isDisabled, setIsDisabled] = useState(false);
-  const [isValid, setIsValid] = useState(true);
   const stripe = useStripe();
   const elements = useElements();
 
-  const validateFields = () => {
+  const validateInnerFields = () => {
     if (billingDetails.email && billingDetails.name && billingDetails.address.country) return true;
+    return false
+  }
+
+  const validateCardFields = () => {
+    if (cardFieldsValidation.cardNumber.state && cardFieldsValidation.cardExpiry.state && cardFieldsValidation.cardCvc.state) return true;
     return false
   }
 
@@ -70,23 +86,43 @@ function CheckoutForm({ clientSecret, amount }) {
       // form submission until Stripe.js has loaded.
       return;
     }
-    
-    const errors = Object.values(cardComplete);
-    if(errors.includes(true)) {
-      setErr({cardNumber: cardComplete.cardNumber, cardCvc: cardComplete.cardCvc, cardExpiry: cardComplete.cardExpiry});
-    }
-    if(errors.includes(false)) {
-      setErr({cardNumber: cardComplete.cardNumber, cardCvc: cardComplete.cardCvc, cardExpiry: cardComplete.cardExpiry});
-    }
-    
 
-    if (!validateFields() || !checkCard) {
-      !checkCard && setErr({cardNumber: false, cardCvc: false, cardExpiry: false});
-      !validateFields() && setIsValid(false);
+    const innerValidation = {};
+    const cardValidation = {...cardFieldsValidation};
+
+    Object.keys(billingDetails).forEach((item) => {
+      if (item === 'address') {
+       return innerValidation.country = !!billingDetails.address.country;
+      }
+      innerValidation[item] = !!billingDetails[item];
+    });
+
+    Object.keys(cardComplete).forEach((item) => {
+      if (!cardComplete[item].complete || cardComplete[item].empty) {
+        cardValidation[item] = {
+          state: false,
+          message: cardComplete[item].error ? cardComplete[item].error.message : ''
+        }
+      } else {
+        cardValidation[item] = {
+          state: true,
+          message: cardComplete[item].error ? cardComplete[item].error.message : ''
+        }
+        if (cardFieldsValidation[item].message === cardFieldErrorMessage) setCardFieldErrorMessage('')
+      }
+    })
+
+    const isValidInnerFields = Object.values(innerValidation).includes(false);
+    const isCardFields = Object.values(cardValidation).map((item) => item.state).includes(false);
+
+    if (isValidInnerFields || isCardFields) {
+      setInnerFieldsValidation(innerValidation);
+      setCardFieldsValidation(cardValidation);
       return;
     }
 
-    setIsValid(true);
+    setInnerFieldsValidation(innerValidation);
+    setCardFieldsValidation(cardValidation);
 
     let card = elements.getElement(CardNumberElement);
     let result;
@@ -120,7 +156,7 @@ function CheckoutForm({ clientSecret, amount }) {
             <StripeField
               placeholder=""
               message={local[lang].validationMessage}
-              isValid={isValid}
+              isValid={innerFieldsValidation.email}
               label={local[lang].email}
               value={billingDetails.email}
               onChange={(event) => setBillingDetails({...billingDetails, email: event.target.value})}
@@ -130,13 +166,14 @@ function CheckoutForm({ clientSecret, amount }) {
           <label className='card-label-text card-info-label' >
             {local[lang].cardInfo}
           </label>
-          <span className='validation-message' style={{display: !Object.values(err).includes(false) ? 'none' : 'inline', top: '10px', right: '10px'}} >{local[lang].validationMessage}</span>
+          <span className='validation-message' style={{display: !validateCardFields() && !cardFieldErrorMessage ? 'inline' : 'none', top: '10px', right: '10px'}} >{local[lang].validationMessage}</span>
+          <span className='card-error-message' style={{display: !validateCardFields() && cardFieldErrorMessage ? 'inline' : 'none'}} >{cardFieldErrorMessage}</span>
           <div 
             className='relative StripeElementCustom'
-            style={{borderRadius: '6px 6px 0 0', padding: '12px 12px', border: !err.cardNumber ? '0.5px solid red': ''}}
+            style={{borderRadius: '6px 6px 0 0', padding: '12px 12px', border: !validateCardFields() ? '0.5px solid red': ''}}
           >
-            <div className='card-number-icons-container' style={!err.cardNumber ?  { width: '35px', bottom: '15px'}: {}} >
-              {!err.cardNumber  ? 
+            <div className='card-number-icons-container' style={!cardFieldsValidation.cardNumber.state ?  { width: '35px', bottom: '15px'}: {}} >
+              {!cardFieldsValidation.cardNumber.state ? 
                 <img src={warning} alt='warning'/> 
                 :
                 <>
@@ -158,18 +195,18 @@ function CheckoutForm({ clientSecret, amount }) {
             <CardNumberElement
               options={CARD_ELEMENT_OPTIONS}
               onChange={(e) => {
-                setCheckCard(true)
-                setCardComplete({...cardComplete, [e.elementType]: e.complete})
+                setCardComplete({...cardComplete, [e.elementType]: {...e}});
+                if (e.error) setCardFieldErrorMessage(e.error.message);
             }}
             />
           </div>
           <div className='card-label-text card-expire-element' >
             <div 
               className='w-50 StripeElementCustom relative'
-              style={{marginTop: '0', borderRadius: '0 0 0 6px', padding: '12px 12px', border: !err.cardExpiry ? '0.5px solid red': ''}}
+              style={{marginTop: '0', borderRadius: '0 0 0 6px', padding: '12px 12px', border: !validateCardFields() ? '0.5px solid red': ''}}
             >
-              <div className='cvc-icon-container' style={!err.cardExpiry ? { right: '16px', bottom: '15px'} : {}} >
-                {!err.cardExpiry 
+              <div className='cvc-icon-container' style={!cardFieldsValidation.cardExpiry.state ? { right: '16px', bottom: '15px'} : {}} >
+                {!cardFieldsValidation.cardExpiry.state 
                   ? 
                     <img src={warning} alt='warning'/> 
                   :
@@ -178,17 +215,17 @@ function CheckoutForm({ clientSecret, amount }) {
               </div>
               <CardExpiryElement
                 onChange={(e) => {
-                  setCheckCard(true)
-                  setCardComplete({...cardComplete, [e.elementType]: e.complete})
+                  setCardComplete({...cardComplete, [e.elementType]: {...e}});
+                  if (e.error) setCardFieldErrorMessage(e.error.message)
                 }}
               /> 
             </div>
             <div
               className='w-50 StripeElementCustom'
-              style={{marginTop: '0', borderRadius: '0 0 6px 0', padding: '12px 12px', border: !err.cardCvc ? '0.5px solid red': ''}}
+              style={{marginTop: '0', borderRadius: '0 0 6px 0', padding: '12px 12px', border: !validateCardFields() ? '0.5px solid red': ''}}
             >
-              <div className='cvc-icon-container' style={!err.cardCvc ? { right: '16px', bottom: '15px'} : {}} >
-              {!err.cardCvc 
+              <div className='cvc-icon-container' style={!cardFieldsValidation.cardCvc.state ? { right: '16px', bottom: '15px'} : {}} >
+              {!cardFieldsValidation.cardCvc.state
                 ? 
                   <img src={warning} alt='warning'/> 
                 :
@@ -197,8 +234,8 @@ function CheckoutForm({ clientSecret, amount }) {
               </div>
               <CardCvcElement
                 onChange={(e) => {
-                  setCheckCard(true)
-                  setCardComplete({...cardComplete, [e.elementType]: e.complete})
+                  setCardComplete({...cardComplete, [e.elementType]: {...e}});
+                  if (e.error) setCardFieldErrorMessage(e.error.message)
                 }}
               />
             </div>
@@ -207,7 +244,7 @@ function CheckoutForm({ clientSecret, amount }) {
         <div className='p-8'>
           <StripeField
             placeholder=""
-            isValid={isValid}
+            isValid={innerFieldsValidation.name}
             message={local[lang].validationMessage}
             label={local[lang].name}
             value={billingDetails.name}
@@ -217,7 +254,7 @@ function CheckoutForm({ clientSecret, amount }) {
         <div className='p-8'>
           <StripeSelect 
             data={countriesList}
-            isValid={isValid}
+            isValid={innerFieldsValidation.country}
             message={local[lang].validationMessage}
             label={local[lang].country}
             value={billingDetails.address.country}
@@ -226,12 +263,12 @@ function CheckoutForm({ clientSecret, amount }) {
         </div>
         <div className='p-8 relative'>
           <button
-            style={validateFields() && !isDisabled ? {color: '#ffffff'} : {color: '#d1d1d1'} }
+            style={validateInnerFields() && !isDisabled ? {color: '#ffffff'} : {color: '#d1d1d1'} }
             className='SubmitButton SubmitButton--incomplete'
             disabled={isDisabled}
             type="submit">{`${local[lang].payButtonText} $${(amount / 100).toFixed(2)}`}
           </button>
-          {validateFields() && <img className='pay-button-lock-icon' alt='lock' src={lockIcon} />}
+          {validateInnerFields() && <img className='pay-button-lock-icon' alt='lock' src={lockIcon} />}
         </div>
       </form> 
     </div>
