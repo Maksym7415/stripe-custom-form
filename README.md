@@ -13,3 +13,5 @@ This is link for official stripe docs **https://stripe.com/docs/stripe-js/elemen
 # Restrictions
 Google/Apple pay button would displayed only in **Chrome 61+**, **Safari** and **MS Edge**.
 Button wouldn't dispay if your browser hasn't payment account.
+
+# Setting config
