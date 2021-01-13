@@ -6,7 +6,7 @@ const config = {
     name: 'Name on card',
     country: 'Country or region',
     payButtonText: 'Pay',
-    validationMessage: 'Mandatory field'
+    validationMessage: 'Required'
   }
 };
 

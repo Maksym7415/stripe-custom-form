@@ -4,7 +4,8 @@ import StripeField from './stripeField';
 import StripeSelect from './stripeSelect';
 import countriesList from './countriesList';
 import local from '../local';
-import cvcIcon from '../images/cvv.svg'
+import cvcIcon from '../images/cvv.svg';
+import lockIcon from '../images/lock.svg';
 
 const defaultState = {
   email: '',
@@ -175,13 +176,14 @@ function CheckoutForm({ clientSecret, amount }) {
             onChange={(country) => setBillingDetails({ ...billingDetails, address: { ...billingDetails.address, country } })}
           />
         </div>
-        <div className='p-8'>
+        <div className='p-8 relative'>
           <button
             style={validateFields() && !isDisabled ? {color: '#ffffff'} : {color: '#d1d1d1'} }
             className='SubmitButton SubmitButton--incomplete'
             disabled={isDisabled}
             type="submit">{`${local[lang].payButtonText} $${(amount / 100).toFixed(2)}`}
           </button>
+          {validateFields() && <img className='pay-button-lock-icon' alt='lock' src={lockIcon} />}
         </div>
       </form> 
     </div>

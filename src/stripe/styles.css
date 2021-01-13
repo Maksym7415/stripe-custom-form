@@ -260,3 +260,11 @@ p {
   border-radius: 10vh;
   cursor: pointer;
 }
+
+.pay-button-lock-icon {
+  width: 25px;
+  height: 25px;
+  position: absolute;
+  right: 20px;
+  top: 28px;
+}
