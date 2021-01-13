@@ -38,6 +38,7 @@ function CheckoutForm({ clientSecret, amount }) {
   const [billingDetails, setBillingDetails] = useState({ ...defaultState });
   const [cardComplete, setCardComplete] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
+  const [isValid, setIsValid] = useState(true);
   const stripe = useStripe();
   const elements = useElements();
 
@@ -54,6 +55,12 @@ function CheckoutForm({ clientSecret, amount }) {
       // form submission until Stripe.js has loaded.
       return;
     }
+
+    if (!validateFields()) {
+      return setIsValid(false);
+    }
+
+    setIsValid(true);
 
     let card = elements.getElement(CardNumberElement);
     let result;
@@ -86,6 +93,8 @@ function CheckoutForm({ clientSecret, amount }) {
         <div className='p-8'>
             <StripeField
               placeholder=""
+              message={local[lang].validationMessage}
+              isValid={isValid}
               label={local[lang].email}
               value={billingDetails.email}
               onChange={(event) => setBillingDetails({...billingDetails, email: event.target.value})}
@@ -149,6 +158,8 @@ function CheckoutForm({ clientSecret, amount }) {
         <div className='p-8'>
           <StripeField
             placeholder=""
+            isValid={isValid}
+            message={local[lang].validationMessage}
             label={local[lang].name}
             value={billingDetails.name}
             onChange={(event) => setBillingDetails({...billingDetails, name: event.target.value})}
@@ -157,6 +168,8 @@ function CheckoutForm({ clientSecret, amount }) {
         <div className='p-8'>
           <StripeSelect 
             data={countriesList}
+            isValid={isValid}
+            message={local[lang].validationMessage}
             label={local[lang].country}
             value={billingDetails.address.country}
             onChange={(country) => setBillingDetails({ ...billingDetails, address: { ...billingDetails.address, country } })}
