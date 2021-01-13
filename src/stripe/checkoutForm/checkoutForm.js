@@ -38,6 +38,7 @@ function CheckoutForm({ clientSecret, amount }) {
   const [lang] = useState('en');
 
   const [billingDetails, setBillingDetails] = useState({ ...defaultState });
+  const [checkCard, setCheckCard] = useState(false);
   const [cardComplete, setCardComplete] = useState({
     cardNumber: true,
     cardExpiry: true,
@@ -47,6 +48,9 @@ function CheckoutForm({ clientSecret, amount }) {
     cardNumber: true,
     cardExpiry: true,
     cardCvc: true,
+    country: true,
+    email: true,
+    name: true,
   });
   const [isDisabled, setIsDisabled] = useState(false);
   const [isValid, setIsValid] = useState(true);
@@ -66,14 +70,20 @@ function CheckoutForm({ clientSecret, amount }) {
       // form submission until Stripe.js has loaded.
       return;
     }
+    
     const errors = Object.values(cardComplete);
+    if(errors.includes(true)) {
+      setErr({cardNumber: cardComplete.cardNumber, cardCvc: cardComplete.cardCvc, cardExpiry: cardComplete.cardExpiry});
+    }
     if(errors.includes(false)) {
       setErr({cardNumber: cardComplete.cardNumber, cardCvc: cardComplete.cardCvc, cardExpiry: cardComplete.cardExpiry});
     }
     
 
-    if (!validateFields()) {
-      return setIsValid(false);
+    if (!validateFields() || !checkCard) {
+      !checkCard && setErr({cardNumber: false, cardCvc: false, cardExpiry: false});
+      !validateFields() && setIsValid(false);
+      return;
     }
 
     setIsValid(true);
@@ -116,10 +126,11 @@ function CheckoutForm({ clientSecret, amount }) {
               onChange={(event) => setBillingDetails({...billingDetails, email: event.target.value})}
             />
         </div>
-        <div className='p-8'>
+        <div className='p-8 relative'>
           <label className='card-label-text card-info-label' >
             {local[lang].cardInfo}
           </label>
+          <span className='validation-message' style={{display: !Object.values(err).includes(false) ? 'none' : 'inline', top: '10px', right: '10px'}} >{local[lang].validationMessage}</span>
           <div 
             className='relative StripeElementCustom'
             style={{borderRadius: '6px 6px 0 0', padding: '12px 12px', border: !err.cardNumber ? '0.5px solid red': ''}}
@@ -147,6 +158,7 @@ function CheckoutForm({ clientSecret, amount }) {
             <CardNumberElement
               options={CARD_ELEMENT_OPTIONS}
               onChange={(e) => {
+                setCheckCard(true)
                 setCardComplete({...cardComplete, [e.elementType]: e.complete})
             }}
             />
@@ -166,6 +178,7 @@ function CheckoutForm({ clientSecret, amount }) {
               </div>
               <CardExpiryElement
                 onChange={(e) => {
+                  setCheckCard(true)
                   setCardComplete({...cardComplete, [e.elementType]: e.complete})
                 }}
               /> 
@@ -184,6 +197,7 @@ function CheckoutForm({ clientSecret, amount }) {
               </div>
               <CardCvcElement
                 onChange={(e) => {
+                  setCheckCard(true)
                   setCardComplete({...cardComplete, [e.elementType]: e.complete})
                 }}
               />
