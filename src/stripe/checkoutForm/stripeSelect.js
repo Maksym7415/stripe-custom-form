@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import BottomArrow from '../images/bottomArrow.svg'
 
-export default function StripeSelect({ data, label, value, onChange }) {
+export default function StripeSelect({ data, label, value, onChange, isValid, message }) {
 
     const ref = useRef(null)
     const [show, setShow] = useState(false);
@@ -30,7 +30,8 @@ export default function StripeSelect({ data, label, value, onChange }) {
             <label className='card-label-text'>
                 {label}
             </label>
-            <div className='StripeElementCustom' >
+            <span className='validation-message' style={{display: isValid ? 'none' : 'inline'}} >{message}</span>
+            <div className='StripeElementCustom' style={{border: isValid ? '1px solid #e8e8e8' : '1px solid red'}}>
                 <div style={{padding: '3px'}}>
                     <div onClick={open} style={{display: 'flex', justifyContent: data.find((el) => el.code === value)?.name ? 'space-between' : 'flex-end'}}>
                     <span style={{fontSize: '14px'}}>{data.find((el) => el.code === value)?.name}</span>

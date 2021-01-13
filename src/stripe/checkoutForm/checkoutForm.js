@@ -6,6 +6,7 @@ import countriesList from './countriesList';
 import local from '../local';
 import cvcIcon from '../images/cvv.svg';
 import warning from '../images/warning.svg';
+import lockIcon from '../images/lock.svg';
 
 const defaultState = {
   email: '',
@@ -48,6 +49,7 @@ function CheckoutForm({ clientSecret, amount }) {
     cardCvc: true,
   });
   const [isDisabled, setIsDisabled] = useState(false);
+  const [isValid, setIsValid] = useState(true);
   const stripe = useStripe();
   const elements = useElements();
 
@@ -69,6 +71,12 @@ function CheckoutForm({ clientSecret, amount }) {
       setErr({cardNumber: cardComplete.cardNumber, cardCvc: cardComplete.cardCvc, cardExpiry: cardComplete.cardExpiry});
     }
     
+
+    if (!validateFields()) {
+      return setIsValid(false);
+    }
+
+    setIsValid(true);
 
     let card = elements.getElement(CardNumberElement);
     let result;
@@ -101,6 +109,8 @@ function CheckoutForm({ clientSecret, amount }) {
         <div className='p-8'>
             <StripeField
               placeholder=""
+              message={local[lang].validationMessage}
+              isValid={isValid}
               label={local[lang].email}
               value={billingDetails.email}
               onChange={(event) => setBillingDetails({...billingDetails, email: event.target.value})}
@@ -183,6 +193,8 @@ function CheckoutForm({ clientSecret, amount }) {
         <div className='p-8'>
           <StripeField
             placeholder=""
+            isValid={isValid}
+            message={local[lang].validationMessage}
             label={local[lang].name}
             value={billingDetails.name}
             onChange={(event) => setBillingDetails({...billingDetails, name: event.target.value})}
@@ -191,18 +203,21 @@ function CheckoutForm({ clientSecret, amount }) {
         <div className='p-8'>
           <StripeSelect 
             data={countriesList}
+            isValid={isValid}
+            message={local[lang].validationMessage}
             label={local[lang].country}
             value={billingDetails.address.country}
             onChange={(country) => setBillingDetails({ ...billingDetails, address: { ...billingDetails.address, country } })}
           />
         </div>
-        <div className='p-8'>
+        <div className='p-8 relative'>
           <button
             style={validateFields() && !isDisabled ? {color: '#ffffff'} : {color: '#d1d1d1'} }
             className='SubmitButton SubmitButton--incomplete'
             disabled={isDisabled}
             type="submit">{`${local[lang].payButtonText} $${(amount / 100).toFixed(2)}`}
           </button>
+          {validateFields() && <img className='pay-button-lock-icon' alt='lock' src={lockIcon} />}
         </div>
       </form> 
     </div>

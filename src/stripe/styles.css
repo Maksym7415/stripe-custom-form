@@ -18,6 +18,14 @@ p {
   cursor: pointer;
 }
 
+.validation-message {
+  position: absolute;
+  right: 0;
+  top: 4px;
+  font-size: 13px;
+  color: red;
+}
+
 .mainContainer {
   max-width: 400px;
   min-width: 300px;
@@ -36,6 +44,10 @@ p {
 
 .p-8 {
   padding: 8px;
+}
+
+.border-red {
+  border: 1px solid red;
 }
 
 /* PAYMENT REQUEST BUTTON STYLES */
@@ -247,4 +259,12 @@ p {
   border: 0;
   border-radius: 10vh;
   cursor: pointer;
+}
+
+.pay-button-lock-icon {
+  width: 25px;
+  height: 25px;
+  position: absolute;
+  right: 20px;
+  top: 28px;
 }
