@@ -26,7 +26,7 @@ export default function StripeSelect({ data, label, value, onChange }) {
     }, [show])
 
     return (
-        <div className='relative'>
+        <div className='relative pointer'>
             <label className='card-label-text'>
                 {label}
             </label>

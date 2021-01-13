@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { CardNumberElement, CardExpiryElement, CardCvcElement, useElements, useStripe } from '@stripe/react-stripe-js';
+import {CardNumberElement, CardExpiryElement, CardCvcElement, useElements, useStripe} from '@stripe/react-stripe-js';
 import StripeField from './stripeField';
 import StripeSelect from './stripeSelect';
-import countriesList from './countriesList';
+import countriesList from '../../../data/countriesList';
 import local from '../local';
 import cvcIcon from '../images/cvv.svg'
 
@@ -11,6 +11,24 @@ const defaultState = {
   name: '',
   address: {
     country: ''
+  }
+};
+const CARD_ELEMENT_OPTIONS = {
+  style: {
+    base: {
+      color: '#32325d',
+      outline: 'none',
+      fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+      fontSmoothing: 'antialiased',
+      fontSize: '16px',
+      '::placeholder': {
+        color: '#aab7c4'
+      }
+    },
+    invalid: {
+      color: '#fa755a',
+      iconColor: '#fa755a'
+    }
   }
 };
 
@@ -31,7 +49,6 @@ function CheckoutForm({ clientSecret, amount }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    console.log('here')
     if (!stripe || !elements) {
       // Stripe.js has not loaded yet. Make sure to disable
       // form submission until Stripe.js has loaded.
@@ -80,7 +97,7 @@ function CheckoutForm({ clientSecret, amount }) {
           </label>
           <div 
             className='relative StripeElementCustom'
-            style={{borderRadius: '6px 6px 0 0'}}
+            style={{borderRadius: '6px 6px 0 0', padding: '12px 12px'}}
           >
             <div className='card-number-icons-container' >
               <img 
@@ -97,6 +114,7 @@ function CheckoutForm({ clientSecret, amount }) {
               />
             </div>
             <CardNumberElement
+              options={CARD_ELEMENT_OPTIONS}
               onChange={(e) => {
                 setCardComplete(e.complete);
             }}
@@ -105,7 +123,7 @@ function CheckoutForm({ clientSecret, amount }) {
           <div className='card-label-text card-expire-element' >
             <div 
               className='w-50 StripeElementCustom'
-              style={{marginTop: '0', borderRadius: '0 0 0 6px'}}
+              style={{marginTop: '0', borderRadius: '0 0 0 6px', padding: '12px 12px'}}
             >
               <CardExpiryElement
                 onChange={(e) => {
@@ -115,7 +133,7 @@ function CheckoutForm({ clientSecret, amount }) {
             </div>
             <div
               className='w-50 StripeElementCustom'
-              style={{marginTop: '0', borderRadius: '0 0 6px 0'}}
+              style={{marginTop: '0', borderRadius: '0 0 6px 0', padding: '12px 12px'}}
             >
               <div className='cvc-icon-container' >
                 <img alt='cvc' src={cvcIcon}></img>

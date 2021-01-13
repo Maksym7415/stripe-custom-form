@@ -2,6 +2,7 @@
 body * {
   box-sizing: border-box;
 }
+  
 p {
   margin: 0
 }
@@ -12,6 +13,9 @@ p {
 
 .disp-none {
   display: none;
+}
+.pointer {
+  cursor: pointer;
 }
 
 .mainContainer {
