@@ -33,7 +33,7 @@ export default function StripeSelect({ data, label, value, onChange }) {
             <div className='StripeElementCustom' >
                 <div style={{padding: '3px'}}>
                     <div onClick={open} style={{display: 'flex', justifyContent: data.find((el) => el.code === value)?.name ? 'space-between' : 'flex-end'}}>
-                    <span style={{fontSize: '13px'}}>{data.find((el) => el.code === value)?.name}</span>
+                    <span style={{fontSize: '14px'}}>{data.find((el) => el.code === value)?.name}</span>
                     <img
                         alt='arrow'
                         src={BottomArrow}

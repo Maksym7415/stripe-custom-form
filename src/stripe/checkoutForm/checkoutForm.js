@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import {CardNumberElement, CardExpiryElement, CardCvcElement, useElements, useStripe} from '@stripe/react-stripe-js';
 import StripeField from './stripeField';
 import StripeSelect from './stripeSelect';
-import countriesList from '../../../data/countriesList';
+import countriesList from './countriesList';
 import local from '../local';
-import cvcIcon from '../images/cvv.svg'
+import cvcIcon from '../images/cvv.svg';
+import warning from '../images/warning.svg';
 
 const defaultState = {
   email: '',
@@ -36,7 +37,16 @@ function CheckoutForm({ clientSecret, amount }) {
   const [lang] = useState('en');
 
   const [billingDetails, setBillingDetails] = useState({ ...defaultState });
-  const [cardComplete, setCardComplete] = useState(false);
+  const [cardComplete, setCardComplete] = useState({
+    cardNumber: true,
+    cardExpiry: true,
+    cardCvc: true,
+  });
+  const [err, setErr] = useState({
+    cardNumber: true,
+    cardExpiry: true,
+    cardCvc: true,
+  });
   const [isDisabled, setIsDisabled] = useState(false);
   const stripe = useStripe();
   const elements = useElements();
@@ -54,6 +64,11 @@ function CheckoutForm({ clientSecret, amount }) {
       // form submission until Stripe.js has loaded.
       return;
     }
+    const errors = Object.values(cardComplete);
+    if(errors.includes(false)) {
+      setErr({cardNumber: cardComplete.cardNumber, cardCvc: cardComplete.cardCvc, cardExpiry: cardComplete.cardExpiry});
+    }
+    
 
     let card = elements.getElement(CardNumberElement);
     let result;
@@ -97,50 +112,69 @@ function CheckoutForm({ clientSecret, amount }) {
           </label>
           <div 
             className='relative StripeElementCustom'
-            style={{borderRadius: '6px 6px 0 0', padding: '12px 12px'}}
+            style={{borderRadius: '6px 6px 0 0', padding: '12px 12px', border: !err.cardNumber ? '0.5px solid red': ''}}
           >
-            <div className='card-number-icons-container' >
-              <img 
-                src='https://js.stripe.com/v3/fingerprinted/img/visa-365725566f9578a9589553aa9296d178.svg'
-                alt='visa'
-              />
-              <img
-                src='https://js.stripe.com/v3/fingerprinted/img/mastercard-4d8844094130711885b5e41b28c9848f.svg'
-                alt='visa'
-              />
-              <img
-                src='https://js.stripe.com/v3/fingerprinted/img/amex-a49b82f46c5cd6a96a6e418a6ca1717c.svg'
-                alt='visa'
-              />
+            <div className='card-number-icons-container' style={!err.cardNumber ?  { width: '35px', bottom: '15px'}: {}} >
+              {!err.cardNumber  ? 
+                <img src={warning} alt='warning'/> 
+                :
+                <>
+                    <img 
+                      src='https://js.stripe.com/v3/fingerprinted/img/visa-365725566f9578a9589553aa9296d178.svg'
+                      alt='visa'
+                    />
+                    <img
+                      src='https://js.stripe.com/v3/fingerprinted/img/mastercard-4d8844094130711885b5e41b28c9848f.svg'
+                      alt='visa'
+                    />
+                    <img
+                      src='https://js.stripe.com/v3/fingerprinted/img/amex-a49b82f46c5cd6a96a6e418a6ca1717c.svg'
+                      alt='visa'
+                    />
+                </>
+              }
             </div>
             <CardNumberElement
               options={CARD_ELEMENT_OPTIONS}
               onChange={(e) => {
-                setCardComplete(e.complete);
+                setCardComplete({...cardComplete, [e.elementType]: e.complete})
             }}
             />
           </div>
           <div className='card-label-text card-expire-element' >
             <div 
-              className='w-50 StripeElementCustom'
-              style={{marginTop: '0', borderRadius: '0 0 0 6px', padding: '12px 12px'}}
+              className='w-50 StripeElementCustom relative'
+              style={{marginTop: '0', borderRadius: '0 0 0 6px', padding: '12px 12px', border: !err.cardExpiry ? '0.5px solid red': ''}}
             >
+              <div className='cvc-icon-container' style={!err.cardExpiry ? { right: '16px', bottom: '15px'} : {}} >
+                {!err.cardExpiry 
+                  ? 
+                    <img src={warning} alt='warning'/> 
+                  :
+                    null
+                }
+              </div>
               <CardExpiryElement
                 onChange={(e) => {
-                  setCardComplete(e.complete);
+                  setCardComplete({...cardComplete, [e.elementType]: e.complete})
                 }}
               /> 
             </div>
             <div
               className='w-50 StripeElementCustom'
-              style={{marginTop: '0', borderRadius: '0 0 6px 0', padding: '12px 12px'}}
+              style={{marginTop: '0', borderRadius: '0 0 6px 0', padding: '12px 12px', border: !err.cardCvc ? '0.5px solid red': ''}}
             >
-              <div className='cvc-icon-container' >
-                <img alt='cvc' src={cvcIcon}></img>
+              <div className='cvc-icon-container' style={!err.cardCvc ? { right: '16px', bottom: '15px'} : {}} >
+              {!err.cardCvc 
+                ? 
+                  <img src={warning} alt='warning'/> 
+                :
+                  <img alt='cvc' src={cvcIcon}></img>
+              }
               </div>
               <CardCvcElement
                 onChange={(e) => {
-                  setCardComplete(e.complete);
+                  setCardComplete({...cardComplete, [e.elementType]: e.complete})
                 }}
               />
             </div>

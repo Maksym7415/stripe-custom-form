@@ -26,10 +26,8 @@ function GooglePay ({ clientSecret }) {
         requestPayerName: true,
         requestPayerEmail: true,
       })
-      console.log('get pr', pr)
       // Check the availability of the Payment Request API.
       pr.canMakePayment().then((result) => {
-        console.log('paymentReq check availeable', result)
         if (result) {
           setPaymentRequest(pr);
 
@@ -43,7 +41,6 @@ function GooglePay ({ clientSecret }) {
 
   useEffect(() => {
     if (paymentRequest) {
-      console.log('paymentrequest')
       setIsShowButton(true)
       paymentRequest.on('paymentmethod', async (ev) => {
         // Confirm the PaymentIntent without handling potential next actions (yet).
@@ -52,7 +49,6 @@ function GooglePay ({ clientSecret }) {
           {payment_method: ev.paymentMethod.id},
           {handleActions: false}
         );
-      console.log('pr on event', paymentIntent, confirmError)
         if (confirmError) {
           // Report to the browser that the payment failed, prompting it to
           // re-show the payment interface, or show an error message and close

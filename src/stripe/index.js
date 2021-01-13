@@ -28,7 +28,6 @@ function Stripe() {
       .then((res) => setClientSecret(res.clientSecret))
       .catch((err) => console.log(err));
   }, []);
-  console.log(clientSecret)
 
   return (
     <Elements stripe={stripePromise}>
