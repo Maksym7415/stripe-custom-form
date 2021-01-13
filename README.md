@@ -15,3 +15,10 @@ Google/Apple pay button would displayed only in **Chrome 61+**, **Safari** and *
 Button wouldn't dispay if your browser hasn't payment account.
 
 # Setting config
+In **"./src/stripe/config.js"** you have to set your pk_test from stripe and your get client secret url
+
+# Local
+All fields names and buttons text are in **"./src/stripe/local.js"**
+
+# Icons
+All icons are in **"./src/stripe/images"**
