@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import {CardNumberElement, CardExpiryElement, CardCvcElement, useElements, useStripe} from '@stripe/react-stripe-js';
 import StripeField from './stripeField';
 import StripeSelect from './stripeSelect';
@@ -36,6 +37,7 @@ const CARD_ELEMENT_OPTIONS = {
 
 function CheckoutForm({ clientSecret, amount }) {
   const [lang] = useState('en');
+  const history = useHistory();
 
   const [billingDetails, setBillingDetails] = useState({ ...defaultState });
   const [cardComplete, setCardComplete] = useState({
@@ -140,12 +142,15 @@ function CheckoutForm({ clientSecret, amount }) {
     if (result) {
       if (result.error) {
         // Show error to your customer (e.g., insufficient funds)
-        console.log('error', result.error)
-        return setIsDisabled(false);
+        console.log('error', result.error);
+        setIsDisabled(false);
+        
+        return history.push('/error');
       };
       console.log('success');
       setBillingDetails(defaultState);
       setIsDisabled(false);
+      return history.push('/success');
     }
   };
 
@@ -170,7 +175,7 @@ function CheckoutForm({ clientSecret, amount }) {
           <span className='card-error-message' style={{display: !validateCardFields() && cardFieldErrorMessage ? 'inline' : 'none'}} >{cardFieldErrorMessage}</span>
           <div 
             className='relative StripeElementCustom'
-            style={{borderRadius: '6px 6px 0 0', padding: '12px 12px', border: !validateCardFields() ? '0.5px solid red': ''}}
+            style={{borderRadius: '6px 6px 0 0', padding: '12px 12px', border: !validateCardFields() ? '0.5px solid red': '', borderBottom: !validateCardFields() ? '0px' : ''}}
           >
             <div className='card-number-icons-container' style={!cardFieldsValidation.cardNumber.state ?  { width: '35px', bottom: '15px'}: {}} >
               {!cardFieldsValidation.cardNumber.state ? 
@@ -203,7 +208,7 @@ function CheckoutForm({ clientSecret, amount }) {
           <div className='card-label-text card-expire-element' >
             <div 
               className='w-50 StripeElementCustom relative'
-              style={{marginTop: '0', borderRadius: '0 0 0 6px', padding: '12px 12px', border: !validateCardFields() ? '0.5px solid red': ''}}
+              style={{marginTop: '0', borderRadius: '0 0 0 6px', padding: '12px 12px', border: !validateCardFields() ? '1px solid red': ''}}
             >
               <div className='cvc-icon-container' style={!cardFieldsValidation.cardExpiry.state ? { right: '16px', bottom: '15px'} : {}} >
                 {!cardFieldsValidation.cardExpiry.state 

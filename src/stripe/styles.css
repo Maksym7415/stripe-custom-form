@@ -30,6 +30,12 @@ p {
   color: red;
 }
 
+.description-form-wrapper {
+  display: flex;
+  width: 100%;
+  padding: 20px;
+}
+
 .mainContainer {
   max-width: 400px;
   min-width: 300px;

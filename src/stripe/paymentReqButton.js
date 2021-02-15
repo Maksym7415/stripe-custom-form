@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useStripe } from '@stripe/react-stripe-js';
+import { useHistory } from 'react-router-dom';
 import local from './local';
 import googleIcon from './images/google.png';
 import appleIcon from './images/apple.svg';
@@ -7,6 +8,7 @@ import appleIcon from './images/apple.svg';
 function GooglePay ({ clientSecret }) {
 
   const [lang] = useState('en');
+  const history = useHistory();
   const stripe = useStripe();
   const [paymentRequest, setPaymentRequest] = useState(null);
   const [isShowButton, setIsShowButton] = useState(false);
@@ -69,13 +71,16 @@ function GooglePay ({ clientSecret }) {
             if (error) {
               // The payment failed -- ask your customer for a new payment method.
               console.log('error')
+              return history.push('/error')
             } else {
               // The payment has succeeded.
               console.log('success')
+              return history.push('/success')
             }
           } else {
             // The payment has succeeded.
             console.log('success')
+            return history.push('/success')
           }
         }
       });
@@ -114,7 +119,7 @@ function GooglePay ({ clientSecret }) {
     )  
   }
 
-  return "Client secret wasn't loaded";
+  return "You aren't able to make payment via Google/Apple";
 }
 
 export default GooglePay;
