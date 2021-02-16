@@ -34,9 +34,11 @@ p {
   display: flex;
   width: 100%;
   padding: 20px;
+  /* min-width: 1000px; */
+  flex-wrap: wrap
 }
 
-.mainContainer {
+.main-container {
   max-width: 400px;
   min-width: 300px;
   display: flex;

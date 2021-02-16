@@ -26,6 +26,7 @@ function Description() {
         <li><b>Name:</b> any name</li>
         <li><b>Country:</b> any country from select</li>
       </ul>
+      <p>To check GooglePay/ApplePay you should add fake payment account for USA country for card 4242 4242 4242 4242.</p>
     </div>
   )
 };

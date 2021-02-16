@@ -35,8 +35,7 @@ function Stripe() {
       {
         clientSecret 
           ? <div className='description-form-wrapper'>
-              <Description/>
-              <div className='mainContainer'>
+              <div className='main-container'>
                 <GooglePay
                   clientSecret={clientSecret}
                   amount={amount}
@@ -46,6 +45,7 @@ function Stripe() {
                   amount={amount}
                 />
               </div>
+              <Description/>
             </div>
           : <div>Your action by loading payment intent</div>
       }

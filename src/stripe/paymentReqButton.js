@@ -30,7 +30,9 @@ function GooglePay ({ clientSecret }) {
       })
       // Check the availability of the Payment Request API.
       pr.canMakePayment().then((result) => {
+        console.log(result)
         if (result) {
+          console.log(result)
           setPaymentRequest(pr);
 
           if (result.applePay) {
@@ -86,6 +88,8 @@ function GooglePay ({ clientSecret }) {
       });
     }
   }, [paymentRequest]) 
+
+  console.log(paymentRequest)
 
   if (paymentRequest) {
     return (
